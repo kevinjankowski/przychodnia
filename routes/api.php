@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HourController;
 use App\Http\Controllers\SpecializationController;
 use App\Http\Controllers\VisitController;
 use Illuminate\Support\Facades\Route;
@@ -32,3 +33,6 @@ Route::get('/busyAppointments', [VisitController::class, 'getBusyAppointments'])
 
 // Specjalizacje
 Route::get('/specs', [SpecializationController::class, 'index']); // Lista pacjentów
+
+// Godziny
+Route::get('/hours', [HourController::class, 'index']); // Lista godzin wizyt
