@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Doctor;
 use App\Models\Hour;
 use App\Models\Patient;
 use App\Models\Visit;
@@ -10,6 +11,8 @@ use Illuminate\Routing\Controller;
 
 class VisitController extends Controller
 {
+    // --------------------------- GET ---------------------------
+
     // Pobieranie wszystkich wizyt danego pacjenta za pomocą jego peselu
     public function getVisitsByPesel(Request $request)
     {
@@ -40,6 +43,43 @@ class VisitController extends Controller
 
         return response()->json($response);
     }
+
+    public function getBusyAppointments(Request $request): \Illuminate\Http\JsonResponse
+    {
+        // Pobierz ID lekarza z parametru zapytania
+        $doctorId = $request->query('doctorId');
+
+        if (!$doctorId) {
+            return response()->json(['message' => 'Doctor ID is required.'], 400);
+        }
+
+        $doctor = Doctor::where('doctor_id', $doctorId)->first();
+
+        if (!$doctor) {
+            return response()->json(['message' => 'Doctor with this ID does not exists.'], 404);
+        }
+
+        // Pobierz wszystkie zajęte terminy dla danego lekarza
+        $occupiedSlots = Visit::where('doctor_id', $doctorId)
+            ->with('hour') // Dołącz dane godziny
+            ->get(['date', 'hour_id']) // Pobierz tylko potrzebne dane
+            ->map(function ($visit) {
+                return [
+                    'date' => $visit->date,
+                    'hour' => $visit->hour->hour, // Z relacji "hour" pobieramy pole "hour"
+                ];
+            });
+
+        // Sprawdź, czy znaleziono zajęte terminy
+        if ($occupiedSlots->isEmpty()) {
+            return response()->json(['message' => 'No occupied slots found for the specified doctor.'], 404);
+        }
+
+        // Zwróć wyniki w formacie JSON
+        return response()->json($occupiedSlots, 200);
+    }
+
+    // --------------------------- POST ---------------------------
 
     // Dodawanie wizyty do istniejącego w bazie pacjenta
     public function addVisit(Request $request)
