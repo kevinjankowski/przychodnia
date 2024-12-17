@@ -8,7 +8,7 @@ class Visit extends Model
 {
     protected $primaryKey = 'visit_id'; // Nazwa klucza głównego
     public $timestamps = false; // Wyłączenie pól created_at i updated_at
-    protected $fillable = ['date', 'hour_id', 'patient_id', 'doctor_id']; // Nazwy pól, które można wypełnić
+    protected $fillable = ['date', 'hour_id', 'patient_id', 'doctor_id', 'note']; // Nazwy pól, które można wypełnić
 
     public function doctor(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

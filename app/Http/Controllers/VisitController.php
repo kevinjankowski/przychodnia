@@ -38,6 +38,7 @@ class VisitController extends Controller
                     'last_name' => $visit->doctor->last_name,
                     'specializations' => $visit->doctor->specializations->pluck('name')->toArray(),
                 ],
+                'note' => $visit->note,
             ];
         });
 
@@ -90,6 +91,7 @@ class VisitController extends Controller
             'doctor_id' => 'required|exists:doctors,doctor_id', // Sprawdzenie, czy lekarz istnieje
             'hour_id' => 'required|exists:hours,hour_id', // Sprawdzenie, czy godzina istnieje
             'date' => 'required|date', // Sprawdzenie, czy data wizyty jest poprawna
+            'note' => 'nullable',
         ]);
 
         // Sprawdzamy, czy pacjent istnieje
@@ -115,6 +117,7 @@ class VisitController extends Controller
             'doctor_id' => $validated['doctor_id'],
             'hour_id' => $validated['hour_id'],
             'date' => $validated['date'],
+            'note' => $validated['note'],
         ]);
 
         // Zwracamy odpowiedź
