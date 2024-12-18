@@ -89,7 +89,6 @@ return [
             'engine' => null,
         ],
 
-        // Inne możliwe połączenia, np. SQLite, PostgreSQL itd.
     ],
 
 

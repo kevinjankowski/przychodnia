@@ -83,15 +83,15 @@ class VisitController extends Controller
     // --------------------------- POST ---------------------------
 
     // Dodawanie wizyty do istniejącego w bazie pacjenta
-    public function addVisit(Request $request)
+    public function addVisit(Request $request): \Illuminate\Http\JsonResponse
     {
         // Walidacja danych wejściowych
         $validated = $request->validate([
             'patient_id' => 'required|numeric|digits:11', // Pesel pacjenta
-            'doctor_id' => 'required|exists:doctors,doctor_id', // Sprawdzenie, czy lekarz istnieje
-            'hour_id' => 'required|exists:hours,hour_id', // Sprawdzenie, czy godzina istnieje
-            'date' => 'required|date', // Sprawdzenie, czy data wizyty jest poprawna
-            'note' => 'nullable',
+            'doctor_id' => 'required|numeric|exists:doctors,doctor_id', // Sprawdzenie, czy lekarz istnieje
+            'hour_id' => 'required|numeric|exists:hours,hour_id', // Sprawdzenie, czy godzina istnieje
+            'date' => 'required|date_format:Y-m-d', // Sprawdzenie, czy data wizyty jest poprawna
+            'note' => 'nullable|max:255',
         ]);
 
         // Sprawdzamy, czy pacjent istnieje
