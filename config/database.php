@@ -55,6 +55,10 @@ return [
             'prefix' => '',
             'strict' => true,
             'engine' => null,
+            /*'options' => [
+                PDO::ATTR_EMULATE_PREPARES => true,
+                PDO::MYSQL_ATTR_MULTI_STATEMENTS => true
+            ],*/
         ],
 
         // Dodatkowe połączenie dla master (opcjonalne, dla bezpośrednich zapytań)
@@ -89,7 +93,6 @@ return [
             'engine' => null,
         ],
 
-        // Inne możliwe połączenia, np. SQLite, PostgreSQL itd.
     ],
 
 

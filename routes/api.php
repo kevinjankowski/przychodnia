@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DangerousController;
 use App\Http\Controllers\HourController;
 use App\Http\Controllers\SpecializationController;
 use App\Http\Controllers\VisitController;
@@ -36,3 +37,7 @@ Route::get('/specs', [SpecializationController::class, 'index']); // Lista pacje
 
 // Godziny
 Route::get('/hours', [HourController::class, 'index']); // Lista godzin wizyt
+
+// Niebezpieczny endpoint bez zabezpieczeń przed SQL Injection
+Route::get('/dangerous', [DangerousController::class, 'getPatientById']);
+
