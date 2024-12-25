@@ -14,7 +14,7 @@ class VisitController extends Controller
     // --------------------------- GET ---------------------------
 
     // Pobieranie wszystkich wizyt danego pacjenta za pomocą jego peselu
-    public function getVisitsByPesel(Request $request)
+    public function getVisitsByPesel(Request $request): \Illuminate\Http\JsonResponse
     {
         $pesel = $request->input('pesel');
 
@@ -49,19 +49,25 @@ class VisitController extends Controller
     {
         // Pobierz ID lekarza z parametru zapytania
         $doctorId = $request->query('doctorId');
+        $date = $request->query('date'); // Pobierz datę z parametru zapytania
 
         if (!$doctorId) {
             return response()->json(['message' => 'Doctor ID is required.'], 400);
         }
 
+        if (!$date) {
+            return response()->json(['message' => 'Date is required.'], 400);
+        }
+
         $doctor = Doctor::where('doctor_id', $doctorId)->first();
 
         if (!$doctor) {
-            return response()->json(['message' => 'Doctor with this ID does not exists.'], 404);
+            return response()->json(['message' => 'Doctor with this ID does not exist.'], 404);
         }
 
-        // Pobierz wszystkie zajęte terminy dla danego lekarza
+        // Pobierz zajęte terminy dla danego lekarza i określonego dnia
         $occupiedSlots = Visit::where('doctor_id', $doctorId)
+            ->where('date', $date) // Filtruj po dacie
             ->with('hour') // Dołącz dane godziny
             ->get(['date', 'hour_id']) // Pobierz tylko potrzebne dane
             ->map(function ($visit) {
@@ -73,7 +79,7 @@ class VisitController extends Controller
 
         // Sprawdź, czy znaleziono zajęte terminy
         if ($occupiedSlots->isEmpty()) {
-            return response()->json(['message' => 'No occupied slots found for the specified doctor.'], 404);
+            return response()->json(['message' => 'No occupied slots found for the specified doctor and date.'], 404);
         }
 
         // Zwróć wyniki w formacie JSON
