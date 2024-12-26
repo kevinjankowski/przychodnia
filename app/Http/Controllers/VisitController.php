@@ -104,14 +104,20 @@ class VisitController extends Controller
         $hourId = $hourController->getHourIdByTime($validated['hour']);
 
         if (!$hourId) {
-            return response()->json(['message' => 'The specified hour does not exist.'], 404);
+            return response()->json([
+                'message' => 'The specified hour does not exist.',
+                'status' => 404,
+            ], 404);
         }
 
         // Sprawdź, czy pacjent istnieje
         $patient = Patient::where('pesel', $validated['patient_id'])->first();
 
         if (!$patient) {
-            return response()->json(['message' => 'Patient with this PESEL not found.'], 404);
+            return response()->json([
+                'message' => 'Patient with this PESEL not found.',
+                'status' => 404,
+            ], 404);
         }
 
         // Sprawdź, czy wybrana godzina i data nie są już zajęte
@@ -121,7 +127,10 @@ class VisitController extends Controller
             ->first();
 
         if ($existingVisit) {
-            return response()->json(['message' => 'The selected time slot is already occupied.'], 400);
+            return response()->json([
+                'message' => 'The selected time slot is already occupied.',
+                'status' => 400
+            ], 400);
         }
 
         // Dodaj nową wizytę
@@ -136,6 +145,7 @@ class VisitController extends Controller
         // Zwróć odpowiedź
         return response()->json([
             'message' => 'Visit successfully created.',
+            'status' => 201
         ], 201);
     }
 
