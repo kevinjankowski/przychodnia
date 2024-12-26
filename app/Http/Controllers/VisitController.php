@@ -106,7 +106,7 @@ class VisitController extends Controller
         if (!$hourId) {
             return response()->json([
                 'message' => 'The specified hour does not exist.',
-                'status' => 404,
+                'status' => 405,
             ], 404);
         }
 
