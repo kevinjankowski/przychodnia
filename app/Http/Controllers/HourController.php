@@ -13,4 +13,12 @@ class HourController
     {
         return response()->json(Hour::all());
     }
+
+    public function getHourIdByTime(string $hour): ?int
+    {
+        // Znajdź rekord godziny na podstawie wartości "hour"
+        $hourRecord = Hour::where('hour', $hour)->first();
+
+        return $hourRecord ? $hourRecord->hour_id : null;
+    }
 }

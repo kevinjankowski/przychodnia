@@ -89,44 +89,51 @@ class VisitController extends Controller
     // --------------------------- POST ---------------------------
 
     // Dodawanie wizyty do istniejącego w bazie pacjenta
-    public function addVisit(Request $request): \Illuminate\Http\JsonResponse
+    public function addVisit(Request $request, HourController $hourController): \Illuminate\Http\JsonResponse
     {
         // Walidacja danych wejściowych
         $validated = $request->validate([
-            'patient_id' => 'required|numeric|digits:11', // Pesel pacjenta
+            'patient_id' => 'required|numeric|digits:11', // PESEL pacjenta
             'doctor_id' => 'required|numeric|exists:doctors,doctor_id', // Sprawdzenie, czy lekarz istnieje
-            'hour_id' => 'required|numeric|exists:hours,hour_id', // Sprawdzenie, czy godzina istnieje
-            'date' => 'required|date_format:Y-m-d', // Sprawdzenie, czy data wizyty jest poprawna
+            'hour' => 'required|date_format:H:i:s', // Sprawdzenie formatu godziny
+            'date' => 'required|date_format:Y-m-d', // Sprawdzenie formatu daty
             'note' => 'nullable|max:255',
         ]);
 
-        // Sprawdzamy, czy pacjent istnieje
-        $patient = Patient::where('pesel', $request->patient_id)->first();
+        // Pobierz ID godziny za pomocą HourController
+        $hourId = $hourController->getHourIdByTime($validated['hour']);
+
+        if (!$hourId) {
+            return response()->json(['message' => 'The specified hour does not exist.'], 404);
+        }
+
+        // Sprawdź, czy pacjent istnieje
+        $patient = Patient::where('pesel', $validated['patient_id'])->first();
 
         if (!$patient) {
             return response()->json(['message' => 'Patient with this PESEL not found.'], 404);
         }
 
-        // Sprawdzamy, czy wybrana godzina nie jest już zajęta
-        $existingVisit = Visit::where('doctor_id', $request->doctor_id)
-            ->where('hour_id', $request->hour_id)
-            ->where('date', $request->date)
+        // Sprawdź, czy wybrana godzina i data nie są już zajęte
+        $existingVisit = Visit::where('doctor_id', $validated['doctor_id'])
+            ->where('hour_id', $hourId)
+            ->where('date', $validated['date'])
             ->first();
 
         if ($existingVisit) {
             return response()->json(['message' => 'The selected time slot is already occupied.'], 400);
         }
 
-        // Dodajemy nową wizytę
+        // Dodaj nową wizytę
         $visit = Visit::create([
-            'patient_id' => Patient::where('pesel', $validated['patient_id'])->first()->pesel,
+            'patient_id' => $patient->pesel,
             'doctor_id' => $validated['doctor_id'],
-            'hour_id' => $validated['hour_id'],
+            'hour_id' => $hourId,
             'date' => $validated['date'],
             'note' => $validated['note'],
         ]);
 
-        // Zwracamy odpowiedź
+        // Zwróć odpowiedź
         return response()->json([
             'message' => 'Visit successfully created.',
         ], 201);
